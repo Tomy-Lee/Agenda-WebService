@@ -1,7 +1,9 @@
 ﻿# Agenda
 Group members：
 15331151  李佳
+
 15331150  李辉旭
+
 15331145  李果
 
 [![Build Status](https://travis-ci.org/Tomy-Lee/Agenda-WebService.svg?branch=master)](https://travis-ci.org/Tomy-Lee/Agenda-WebService.svg?branch=master)
