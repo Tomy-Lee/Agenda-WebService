@@ -1,0 +1,20 @@
+language: go
+
+go:
+  - 1.8
+  - master
+
+sudo: required
+
+services:
+  - docker
+
+script:
+  - export MOCK= && go test -v ./cli/vendor/service
+  - go test -v ./service/vendor/entities
+  - docker build . -t agenda
+  - docker run -dit --name service -p 8080:8080 -v /data:/data agenda service
+  - sleep 2
+  - docker ps -a
+  - docker logs service
+  - docker run --rm --net host -v /data:/data agenda cli register -u agenda -p agenda -m agenda@service.computing.com -n 12345678909
