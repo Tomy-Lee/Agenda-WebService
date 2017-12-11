@@ -1,173 +1,319 @@
 FORMAT: 1A
 HOST: http://agenda23.apiblueprint.org/
 
-# Agenda
+# Agenda API
 
-Agenda is a simple API allowing consumers to schedule meeting on-line
+Agenda API
 
-# Group User
+## Group User [/api/user]
 
-Resource operations related to a user in the API.
-
-## User-Key [/v1/user/getkey{?username,password}]
+### Is Logged in [GET /api/user/login{?openid}]
 
 + Parameters
-    - username : `root` (string, required) - User Name
-    - password : `pass` (required)
-
-### Get User Key [GET]
-
-get a security key for operations later
+    - openid : `abcdefg` (string, required) - Open ID
 
 + Response 200 (application/json)
-    
+
         {
-            "key":"1e3576bt",
-            "permissions":["user","admin"]
+            "username": "admin"
         }
-        
 
-# Group Users
++ Response 401 (application/json)
 
-Resources related to a users in the API.
+        {}
 
-## Users Collection [/v1/users{?key}]
-
-+ Parameters
-    - key : `1e3576bt` (string, required)
-        
-### List all Users [GET]
-
-+ Response 200 (application/json)
-
-        [
-            {
-                "id":1,
-                "username":"zhang3",
-                "password":"zhang",
-                "email":"zhang3@mail2.sysu.edu.cn"
-            },{
-                "id":2,
-                "username":"li4",
-                "password":"li",
-                "email":"li4@mail2.sysu.edu.cn"
-            }
-        ]
-        
-### Create a New User [POST]
+### Login [POST /api/user/login]
 
 + Request (application/json)
 
         {
-            "username":"zhang3",
-            "password":"zhang",
-            "email":"zhang3@mail2.sysu.edu.cn"
+            "username": "admin",
+            "password": "agenda"
         }
+
++ Response 200 (application/json)
+
+        {
+            "openid": "abcdefg",
+            "msg": "Logged in successfully"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "msg": "You have logged in as admin"
+        }
+
++ Response 401 (application/json)
+
+### Logout [POST /api/user/logout]
+
++ Response 200 (application/json)
+
+    + Header
+
+            Location: /api/user/login
+
+### Delete Account [DELETE /api/user/self]
+
++ Response 200 (application/json)
+
+    + Header
+
+            Location: /api/user/login
+
++ Response 401 (application/json)
+
+## Group Users [/api/users]
+
+### Register [POST]
+
++ Request (application/json)
+
+    + Body
+
+            {
+                "username": "admin",
+                "password": "agenda",
+                "email": "computing@service.com",
+                "phone": "12345678909"
+            }
 
 + Response 201 (application/json)
 
-    + Headers
+    + Header
 
-            Location: /users/1
+            Location: /api/user/login
             
     + Body
     
-            {
-                "id": 1,
-                "username":"zhang3",
-                "password":"zhang",
-                "email":"zhang3@mail2.sysu.edu.cn"
-            }
+            {}
 
-### Get User by ID [GET /v1/users/{id}]
++ Response 400 (application/json)
+
+        {
+            "msg": "bad username"
+        }
+        
+### Show User List [GET /api/users]
+
++ Response 200 (application/json)
+            
+        [
+            {"username": "test1"},
+            {"username": "test2"},
+            {"username": "test3"}
+        ]
+            
++ Response 401 (application/json)
+
+### Show User Detail  [GET /api/users/{username}]
 
 + Parameters
-    - id : `1` (int, required) - User Name
+    - username : `test1` (string, required) - Username
+
++ Response 200 (application)
+    
+        {
+            "username": "test1",
+            "email": "test1@qq.com",
+            "phone": "12344566"
+        }
+
++ Response 401 (application/json)
+
++ Response 404 (application/json)
+
+        {}
+        
+
+## Group Meetings [/api/meetings]
+
+### Add Meeting [POST /api/meetings]
+
++ Request (application/json)
+
+    + Body
+    
+            {
+                "title": "meeting",
+                "participators": "test1",
+                "startTime": "2017-01-01/12:00:00",
+                "endTime": "2017-01-02/12:00:00"
+            }
+            
++ Response 201 (application/json)
+
+    + Header
+
+            Location: /api/meetings
+
+    + Body
+
+            {}
+            
++ Response 400 (application/json)
+
+        {
+            "msg": "bad title"
+        }
+        
++ Response 401 (application/json)
+
+### Add Participator [POST /api/meetings/{title}/participators]
+
++ Request (application/json)
+
+    + Body
+        
+            {
+                "participators": "test2"
+            }
+            
++ Response 200 (application/json)
+
+    + Header
+
+            Location: /api/meeting/list
+
+    + Body
+
+            {}
+
++ Response 400 (application/json)
+
+        {
+            "msg": "user will be having another meeting to participate"
+        }
+
++ Response 401 (application/json)
+
++ Response 403 (application/json)
+
+        {
+            "msg": "You are not the sponsor"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "msg": "meeting/participator not found"
+        }
+
+### Delete Participator [DELETE /api/meetings/{title}/participators]
+
++ Request (application/json)
+
+    + Body
+        
+            {
+                "participator": "test2"
+            }
+            
++ Response 200 (application/json)
+
+    + Header
+
+            Location: /api/meeting
+
+    + Body
+
+            {}
+
++ Response 401 (application/json)
+
++ Response 403 (application/json)
+
+        {
+            "msg": "You are not the sponsor"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "msg": "meeting/participator not found"
+        }
+
+### Cancel Meeting [DELETE /api/meetings/{title}]
 
 + Response 200 (application/json)
 
+    + Header
+    
+            Location: /api/meeting
+    
+    + Body
+    
+            {}
+            
++ Response 401 (application/json)
+
++ Response 403 (application/json)
+
         {
-            "id" : 1,
-            "username":"zhang3",
-            "password":"zhang",
-            "email":"zhang3@mail2.sysu.edu.cn"
+            "msg": "You are not the sponsor"
         }
 
++ Response 404 (application/json)
 
+        {
+            "msg": "meeting not found"
+        }
 
+### Quit Meeting [DELETE /api/meetings/{title}/participator/self]
 
-# Group Meetings
++ Response 200 (application/json)
 
-## Questions Collection [/questions]
+    + Header
+    
+            Location: /api/meeting
+    
+    + Body
+    
+            {}
+            
++ Response 401 (application/json)
 
-### List All Questions [GET]
++ Response 404 (application/json)
+
+        {
+            "msg": "meeting not found"
+        }
+
+### Show Meetings By Time [GET /api/meetings{?startTime,endTime}]
+
++ Parameters
+    - startTime : `2017-01-01/12:00:00` (string, required) - Start Time
+    - endTime : `2017-01-02/12:00:00` (string, required) - End Time
 
 + Response 200 (application/json)
 
         [
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
+                "title": "meeting",
+                "participators": ["test1"],
+                "startTime": "2017-01-01/12:00:00",
+                "endTime": "2017-01-02/12:00:00"
             }
         ]
+            
++ Response 400 (application/json)
 
-### Create a New Question [POST]
+        []
+        
++ Response 401 (application/json)
 
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
+### Show All Meetings [GET /api/meetings]
 
-+ Request (application/json)
++ Response 200 (application/json)
 
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
-
-+ Response 201 (application/json)
-
-    + Headers
-
-            Location: /questions/2
-
-    + Body
-
+        [
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
+                "title": "meeting",
+                "participators": ["test1"],
+                "startTime": "2017-01-01/12:00:00",
+                "endTime": "2017-01-02/12:00:00"
             }
+        ]
+            
++ Response 401 (application/json)
