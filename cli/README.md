@@ -1,4 +1,3 @@
-# 命令清单
 
 ## agenda help
 
